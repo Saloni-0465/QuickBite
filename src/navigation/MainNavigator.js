@@ -1,184 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
+import HomeScreen from '../screens/shop/HomeScreen';
+import CartScreen from '../screens/shop/CartScreen';
+import FoodDetailScreen from '../screens/shop/FoodDetailScreen';
+import CheckoutScreen from '../screens/shop/CheckoutScreen';
+import OrderTrackingScreen from '../screens/shop/OrderTrackingScreen';
 import { colors } from '../utils/theme';
-
-import SplashScreen from '../screens/auth/SplashScreen';
-import WelcomeScreen from '../screens/auth/WelcomeScreen';
-import LoginScreen from '../screens/auth/LoginScreen';
-import SignupScreen from '../screens/auth/SignupScreen';
-import ProfileSetupScreen from '../screens/auth/ProfileSetupScreen';
-
-import DiscoverScreen from '../screens/main/DiscoverScreen';
-import SearchScreen from '../screens/main/SearchScreen';
-import FavoritesScreen from '../screens/main/FavoritesScreen';
-import ProfileScreen from '../screens/main/ProfileScreen';
-
-import MovieDetailScreen from '../screens/detail/MovieDetailScreen';
-import WatchlistScreen from '../screens/detail/WatchlistScreen';
-import TrailerWebViewScreen from '../screens/detail/TrailerWebViewScreen';
-import PrivacySecurityScreen from '../screens/main/PrivacySecurityScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const AuthStack = () => {
-  const route = useRoute();
-  const initialRouteName = route.params?.initialRouteName || 'Welcome';
-  
+const ShopTabs = () => {
+  const cartCount = useSelector((state) => state.cart.items.reduce((sum, entry) => sum + entry.quantity, 0));
   return (
-    <Stack.Navigator 
-      screenOptions={{ headerShown: false }}
-      initialRouteName={initialRouteName}
-    >
-      <Stack.Screen name="Welcome" component={WelcomeScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
-      <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
-    </Stack.Navigator>
-  );
-};
-
-const MainTabs = () => (
-  <Tab.Navigator
-    screenOptions={({ route }) => ({
-      tabBarIcon: ({ focused, color, size }) => {
-        let iconName;
-
-        if (route.name === 'Discover') {
-          iconName = focused ? 'film' : 'film-outline';
-        } else if (route.name === 'Search') {
-          iconName = focused ? 'search' : 'search-outline';
-        } else if (route.name === 'Favorites') {
-          iconName = focused ? 'star' : 'star-outline';
-        } else if (route.name === 'Profile') {
-          iconName = focused ? 'person' : 'person-outline';
-        }
-
-        return <Ionicons name={iconName} size={size} color={color} />;
-      },
+    <Tab.Navigator screenOptions={({ route }) => ({
+      headerShown: false,
       tabBarActiveTintColor: colors.accent,
       tabBarInactiveTintColor: colors.textSecondary,
-      tabBarStyle: {
-        backgroundColor: colors.surface,
-        borderTopColor: colors.border,
-        borderTopWidth: 1,
-        paddingBottom: 8,
-        paddingTop: 8,
-        height: 60,
+      tabBarStyle: { backgroundColor: colors.white, borderTopColor: colors.border, height: 62, paddingTop: 7, paddingBottom: 7 },
+      tabBarLabelStyle: { fontSize: 10, fontWeight: '700' },
+      tabBarIcon: ({ color, size, focused }) => {
+        const name = route.name === 'Explore' ? (focused ? 'compass' : 'compass-outline') : (focused ? 'bag' : 'bag-outline');
+        return <Ionicons name={name} size={size} color={color} />;
       },
-      headerStyle: {
-        backgroundColor: colors.background,
-        borderBottomColor: colors.border,
-        borderBottomWidth: 1,
-      },
-      headerTintColor: colors.text,
-      headerTitleStyle: {
-        fontWeight: 'bold',
-      },
-    })}
-  >
-    <Tab.Screen
-      name="Discover"
-      component={DiscoverScreen}
-      options={{ headerTitle: '🎬 Discover' }}
-    />
-    <Tab.Screen
-      name="Search"
-      component={SearchScreen}
-      options={{ headerTitle: '🔍 Search' }}
-    />
-    <Tab.Screen
-      name="Favorites"
-      component={FavoritesScreen}
-      options={{ headerTitle: '⭐ Favorites' }}
-    />
-    <Tab.Screen
-      name="Profile"
-      component={ProfileScreen}
-      options={{ headerTitle: '👤 Profile' }}
-    />
-  </Tab.Navigator>
-);
-
-const MainNavigator = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const hasCompletedOnboarding = useSelector(
-    (state) => state.auth.hasCompletedOnboarding
-  );
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-  }, []);
-
-  if (isLoading) {
-    return <SplashScreen />;
-  }
-
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {!isAuthenticated || !hasCompletedOnboarding ? (
-        <Stack.Screen 
-          name="Auth" 
-          component={AuthStack}
-          initialParams={{ 
-            initialRouteName: isAuthenticated && !hasCompletedOnboarding 
-              ? 'ProfileSetup' 
-              : 'Welcome' 
-          }}
-        />
-      ) : (
-        <>
-          <Stack.Screen name="MainTabs" component={MainTabs} />
-          <Stack.Screen
-            name="MovieDetail"
-            component={MovieDetailScreen}
-            options={{
-              headerShown: true,
-              headerStyle: { backgroundColor: colors.background },
-              headerTintColor: colors.text,
-              title: 'Movie Details',
-            }}
-          />
-          <Stack.Screen
-            name="TrailerWebView"
-            component={TrailerWebViewScreen}
-            options={{
-              headerShown: false,
-              presentation: 'fullScreenModal',
-            }}
-          />
-          <Stack.Screen
-            name="Watchlist"
-            component={WatchlistScreen}
-            options={{
-              headerShown: true,
-              headerStyle: { backgroundColor: colors.background },
-              headerTintColor: colors.text,
-              title: 'My Watchlist',
-            }}
-          />
-          <Stack.Screen
-            name="PrivacySecurity"
-            component={PrivacySecurityScreen}
-            options={{
-              headerShown: true,
-              headerStyle: { backgroundColor: colors.background },
-              headerTintColor: colors.text,
-              title: 'Privacy & Security',
-            }}
-          />
-        </>
-      )}
-    </Stack.Navigator>
+    })}>
+      <Tab.Screen name="Explore" component={HomeScreen} options={{ title: 'Explore' }} />
+      <Tab.Screen name="Cart" component={CartScreen} options={{ title: 'Your bag', tabBarBadge: cartCount || undefined, tabBarBadgeStyle: { backgroundColor: colors.accent, color: colors.white } }} />
+    </Tab.Navigator>
   );
 };
 
-export default MainNavigator;
+const MainNavigator = () => (
+  <Stack.Navigator screenOptions={{
+    headerStyle: { backgroundColor: colors.background },
+    headerTintColor: colors.text,
+    headerTitleStyle: { fontSize: 16, fontWeight: '700' },
+    headerShadowVisible: false,
+    contentStyle: { backgroundColor: colors.background },
+  }}>
+    <Stack.Screen name="Shop" component={ShopTabs} options={{ headerShown: false }} />
+    <Stack.Screen name="FoodDetail" component={FoodDetailScreen} options={{ title: 'Dish details', headerBackTitle: 'Menu' }} />
+    <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: 'Checkout', headerBackTitle: 'Bag' }} />
+    <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} options={{ title: 'Order status', headerBackVisible: false }} />
+  </Stack.Navigator>
+);
 
+export default MainNavigator;

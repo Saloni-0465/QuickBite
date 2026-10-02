@@ -1,82 +1,39 @@
 import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { Provider, useDispatch } from 'react-redux';
-import { store } from './src/store/store';
-import MainNavigator from './src/navigation/MainNavigator';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { View, ActivityIndicator } from 'react-native';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './src/services/firebase';
-import { getUserData } from './src/services/authService';
-import { loadPersistedState } from './src/store/persistence';
-import { login, logout, setOnboardingComplete } from './src/store/slices/authSlice';
-import { addToFavorites, addToWatchlist } from './src/store/slices/movieSlice';
+import { store } from './src/store/store';
+import { hydrateCart } from './src/store/slices/cartSlice';
+import { storage } from './src/utils/storage';
+import MainNavigator from './src/navigation/MainNavigator';
 import { colors } from './src/utils/theme';
 
 const AppContent = () => {
   const dispatch = useDispatch();
-  const [isLoading, setIsLoading] = useState(true);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      try {
-        if (firebaseUser) {
-          const userData = await getUserData(firebaseUser.uid);
-          
-          dispatch(
-            login({
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              name: userData?.name || firebaseUser.displayName || firebaseUser.email?.split('@')[0],
-              favoriteGenres: userData?.favoriteGenres || [],
-            })
-          );
-          
-          if (userData?.hasCompletedOnboarding) {
-            dispatch(setOnboardingComplete());
-          }
-        } else {
-          dispatch(logout());
-        }
-
-        const persistedState = await loadPersistedState();
-        if (persistedState?.movie) {
-          if (Array.isArray(persistedState.movie.favorites)) {
-            persistedState.movie.favorites.forEach((movie) => dispatch(addToFavorites(movie)));
-          }
-          if (Array.isArray(persistedState.movie.watchlist)) {
-            persistedState.movie.watchlist.forEach((movie) => dispatch(addToWatchlist(movie)));
-          }
-        }
-      } catch (error) {
-      } finally {
-        setIsLoading(false);
-      }
-    });
-
-    return () => unsubscribe();
+    let active = true;
+    storage.getItem('quickbite_cart')
+      .then((items) => { if (active) dispatch(hydrateCart(items)); })
+      .finally(() => { if (active) setReady(true); });
+    return () => { active = false; };
   }, [dispatch]);
 
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-        <ActivityIndicator size="large" color={colors.accent} />
-      </View>
-    );
-  }
-
+  if (!ready) return <View style={styles.loading}><ActivityIndicator size="large" color={colors.accent} /></View>;
   return <MainNavigator />;
 };
 
 export default function App() {
   return (
     <Provider store={store}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={styles.root}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <StatusBar style="light" />
+            <StatusBar style="dark" />
             <AppContent />
           </NavigationContainer>
         </SafeAreaProvider>
@@ -84,3 +41,8 @@ export default function App() {
     </Provider>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.background },
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+});
