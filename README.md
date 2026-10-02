@@ -1,62 +1,34 @@
-# Movie Explorer
+# QuickBite
 
-React Native app for browsing movies and TV shows. Built with Expo.
+A small iOS-first food-ordering prototype built with Expo and React Native. It explores a quick path from menu discovery to cart, checkout, and order updates. This is an independent portfolio concept and is not affiliated with Bistro or Blinkit.
 
-## Getting Started
+## Demo flow
 
-Clone the repo and install dependencies:
+1. Browse a sample menu, search dishes, or filter by meals, snacks, drinks, and desserts.
+2. Open a dish, add it to the cart, and adjust quantities.
+3. Review the delivery fee and total, select a demo payment method, and place a sample order.
+4. Advance the order through confirmed, preparing, on-the-way, and delivered states.
 
-```bash
-git clone <repository-url>
-cd movie-explorer
+Menu items, location, delivery estimates, payment, and order status are sample data. The app does not place real orders or collect payment. The cart is saved locally on the device.
+
+## Run locally
+
+```sh
 npm install
+npx expo start
 ```
 
-You'll need a TMDB API key to fetch movie data. Get one from [TMDB](https://www.themoviedb.org/settings/api) and add it to `src/services/tmdbApi.js`. Check `TMDB_SETUP.md` for details.
+Press `i` to open the iOS simulator. An internet connection is needed for the sample food photos.
 
-For Firebase auth, set up your `.env` file with Firebase credentials. See `FIREBASE_SETUP_COMPLETE.md` for instructions.
+## Tech
 
-Run the app:
+- Expo and React Native
+- React Navigation (native stack and tabs)
+- Redux Toolkit for cart and demo order state
+- AsyncStorage for cart persistence
 
-```bash
-npm start
-```
+## Product decisions
 
-Then press `i` for iOS or `a` for Android.
-
-## What's Included
-
-- User authentication with Firebase
-- Browse trending movies
-- Search movies
-- Save favorites and watchlist
-- Movie details with trailers
-- Profile management
-
-## Tech Used
-
-- React Native / Expo
-- React Navigation
-- Redux Toolkit
-- Firebase (Auth & Firestore)
-- TMDB API
-- AsyncStorage
-
-## Project Layout
-
-```
-src/
-├── components/     # Button, Input, MovieCard
-├── navigation/     # MainNavigator
-├── screens/        # All screen components
-│   ├── auth/      # Login, Signup, ProfileSetup
-│   ├── main/      # Discover, Search, Favorites, Profile
-│   └── detail/     # MovieDetail, Watchlist
-├── services/       # Firebase, TMDB API
-├── store/          # Redux store and slices
-└── utils/          # Theme, storage helpers
-```
-
-## License
-
-MIT
+- The app opens directly to the menu; no account is needed to try the ordering journey.
+- The cart keeps item quantities and explains the free-delivery threshold before checkout.
+- Checkout and delivery states are clearly labeled as a simulation so a portfolio demo cannot be mistaken for a live commerce service.
