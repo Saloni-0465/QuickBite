@@ -1,29 +1,14 @@
 {
   "expo": {
-    "name": "Movie Explorer",
-    "slug": "movie-explorer",
+    "name": "QuickBite",
+    "slug": "quickbite",
+    "scheme": "quickbite",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "automatic",
-    "splash": {
-      "resizeMode": "contain",
-      "backgroundColor": "#1a1a2e"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.movieexplorer.app"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#1a1a2e"
-      },
-      "package": "com.movieexplorer.app"
-    },
-    "plugins": [
-      "expo-font"
-    ]
+    "userInterfaceStyle": "light",
+    "splash": { "resizeMode": "contain", "backgroundColor": "#F7F6F1" },
+    "assetBundlePatterns": ["**/*"],
+    "ios": { "supportsTablet": true, "bundleIdentifier": "com.quickbite.app" },
+    "android": { "adaptiveIcon": { "backgroundColor": "#173F2B" }, "package": "com.quickbite.app" }
   }
 }
